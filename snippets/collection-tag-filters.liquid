@@ -1,10 +1,9 @@
 {% doc %}
   Collection Tag Filters
 
-  Renders configurable tag-based pill filter buttons above the product grid.
-  'All' links to the unfiltered collection URL; each tag pill links to
-  /collections/{handle}/{tag} for native Shopify tag filtering.
-  Active state detected via collection.current_tags.
+  Renders configurable tag-based pill filter buttons above the product grid,
+  plus a Filter button that opens the native Horizon facet drawer and a Sort
+  dropdown that switches sort order.
 
   @param {object} collection - The collection object
   @param {object} section - The section object (for settings)
@@ -27,16 +26,30 @@
   if tag_1 != blank or tag_2 != blank or tag_3 != blank or tag_4 != blank or tag_5 != blank or tag_6 != blank
     assign has_tags = true
   endif
+
+  assign current_sort = collection.sort_by | default: collection.default_sort_by
+  assign current_sort_label = 'Featured'
+  for option in collection.sort_options
+    if option.value == current_sort
+      assign current_sort_label = option.name
+    endif
+  endfor
 %}
 
 {% if has_tags %}
   <div class="collection-tag-filters" aria-label="Product filters">
     <div class="collection-tag-filters__bar">
-      <div class="collection-tag-filters__filter-icon">
+      <button
+        type="button"
+        class="collection-tag-filters__filter-icon button-unstyled"
+        on:click="#filters-drawer/showDialog"
+        aria-haspopup="dialog"
+        aria-label="Open filters"
+      >
         <span class="svg-wrapper">{{ 'svg-2.svg' | inline_asset_content }}</span>
         <span class="collection-tag-filters__filter-label">Filter</span>
         <span class="collection-tag-filters__chevron svg-wrapper">{{ 'svg-4.svg' | inline_asset_content }}</span>
-      </div>
+      </button>
 
       <span class="collection-tag-filters__count">
         {{ collection.products_count }} Items
@@ -93,15 +106,38 @@
         {% endfor %}
       </div>
 
-      <div class="collection-tag-filters__sort">
-        <span class="collection-tag-filters__sort-label">Sort: Featured</span>
-        <span class="collection-tag-filters__chevron svg-wrapper">{{ 'svg-4.svg' | inline_asset_content }}</span>
-      </div>
+      <details class="collection-tag-filters__sort">
+        <summary class="collection-tag-filters__sort-summary">
+          <span class="collection-tag-filters__sort-label">Sort: {{ current_sort_label }}</span>
+          <span class="collection-tag-filters__chevron svg-wrapper">{{ 'svg-4.svg' | inline_asset_content }}</span>
+        </summary>
+        <ul class="collection-tag-filters__sort-menu" role="list">
+          {% for option in collection.sort_options %}
+            {% assign is_current = false %}
+            {% if option.value == current_sort %}{% assign is_current = true %}{% endif %}
+            <li>
+              <a
+                href="{{ request.path }}?sort_by={{ option.value }}"
+                class="collection-tag-filters__sort-option{% if is_current %} collection-tag-filters__sort-option--active{% endif %}"
+                {% if is_current %}aria-current="true"{% endif %}
+              >
+                {{ option.name }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </details>
     </div>
 
     <div class="collection-tag-filters__mobile-bar">
       <div class="collection-tag-filters__mobile-buttons">
-        <button type="button" class="collection-tag-filters__mobile-btn" aria-label="Open filter panel">
+        <button
+          type="button"
+          class="collection-tag-filters__mobile-btn"
+          on:click="#filters-drawer/showDialog"
+          aria-haspopup="dialog"
+          aria-label="Open filter panel"
+        >
           <span class="collection-tag-filters__mobile-btn-inner">
             <svg width="18" height="8" viewBox="0 0 18 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <line x1="0" y1="1" x2="18" y2="1" stroke="#680040" stroke-width="1.71"/>
@@ -111,12 +147,30 @@
             <span>Filter</span>
           </span>
         </button>
-        <button type="button" class="collection-tag-filters__mobile-btn" aria-label="Open sort panel">
-          <span class="collection-tag-filters__mobile-btn-inner">
-            <span class="svg-wrapper">{{ 'svg-2.svg' | inline_asset_content }}</span>
-            <span>Sort: Featured</span>
-          </span>
-        </button>
+
+        <details class="collection-tag-filters__mobile-sort">
+          <summary class="collection-tag-filters__mobile-btn">
+            <span class="collection-tag-filters__mobile-btn-inner">
+              <span class="svg-wrapper">{{ 'svg-2.svg' | inline_asset_content }}</span>
+              <span>Sort: {{ current_sort_label }}</span>
+            </span>
+          </summary>
+          <ul class="collection-tag-filters__sort-menu collection-tag-filters__sort-menu--mobile" role="list">
+            {% for option in collection.sort_options %}
+              {% assign is_current_m = false %}
+              {% if option.value == current_sort %}{% assign is_current_m = true %}{% endif %}
+              <li>
+                <a
+                  href="{{ request.path }}?sort_by={{ option.value }}"
+                  class="collection-tag-filters__sort-option{% if is_current_m %} collection-tag-filters__sort-option--active{% endif %}"
+                  {% if is_current_m %}aria-current="true"{% endif %}
+                >
+                  {{ option.name }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </details>
       </div>
 
       <div class="collection-tag-filters__mobile-pills" role="list">
@@ -174,6 +228,12 @@
     padding-inline: var(--page-margin);
   }
 
+  /* Hide native Horizon facet bar + mobile toggle — we provide our own buttons */
+  .collection-wrapper > div.facets-block-wrapper,
+  .collection-wrapper > div.facets-toggle {
+    display: none !important;
+  }
+
   /* Desktop bar — hidden on mobile */
   .collection-tag-filters__bar {
     display: none;
@@ -193,6 +253,9 @@
     gap: 0;
     padding-inline-end: 16px;
     flex-shrink: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
   }
 
   .collection-tag-filters__filter-icon .svg-wrapper {
@@ -287,13 +350,28 @@
     border-color: #680040;
   }
 
+  /* Sort dropdown — desktop */
   .collection-tag-filters__sort {
-    display: flex;
-    align-items: center;
+    position: relative;
     flex-shrink: 0;
     min-width: 134px;
-    padding: 4px 0;
+  }
+
+  .collection-tag-filters__sort > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    padding: 4px 0;
+  }
+
+  .collection-tag-filters__sort > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .collection-tag-filters__sort[open] .collection-tag-filters__chevron {
+    transform: rotate(180deg);
   }
 
   .collection-tag-filters__sort-label {
@@ -303,6 +381,44 @@
     line-height: 33px;
     color: #680040;
     text-align: center;
+  }
+
+  .collection-tag-filters__sort-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin: 8px 0 0;
+    padding: 8px 0;
+    list-style: none;
+    background: #FFFFFF;
+    border: 1px solid #003E6B;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1);
+    min-width: 220px;
+    z-index: 10;
+  }
+
+  .collection-tag-filters__sort-option {
+    display: block;
+    padding: 10px 16px;
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    color: #000000;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+  }
+
+  .collection-tag-filters__sort-option:hover {
+    background-color: rgba(104, 0, 64, 0.05);
+  }
+
+  .collection-tag-filters__sort-option--active {
+    background-color: rgba(104, 0, 64, 0.08);
+    color: #680040;
+    font-weight: 500;
   }
 
   /* Mobile bar — visible only on mobile */
@@ -338,6 +454,11 @@
     font-size: 14px;
     line-height: 18px;
     color: #680040;
+    list-style: none;
+  }
+
+  .collection-tag-filters__mobile-btn::-webkit-details-marker {
+    display: none;
   }
 
   .collection-tag-filters__mobile-btn-inner {
@@ -359,6 +480,16 @@
     width: 16px;
     height: 16px;
     color: #680040;
+  }
+
+  .collection-tag-filters__mobile-sort {
+    position: relative;
+  }
+
+  .collection-tag-filters__sort-menu--mobile {
+    left: 0;
+    right: auto;
+    min-width: 200px;
   }
 
   .collection-tag-filters__mobile-pills {
