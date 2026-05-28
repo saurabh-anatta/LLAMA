@@ -1,0 +1,535 @@
+{% doc %}
+  Custom Collection Card
+
+  Renders a product card matching the Figma design with badges, star ratings,
+  variant flavor pills, per-serving price, and inline add-to-cart button.
+
+  @param {object} product - The product object (required)
+
+  @example
+  {% render 'custom-collection-card', product: product %}
+{% enddoc %}
+
+{% liquid
+  assign product = product | default: empty
+  unless product != empty
+    break
+  endunless
+
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_image = product.featured_image
+
+  # Badge logic
+  assign has_bestseller = false
+  assign has_new = false
+  assign has_discount = false
+  assign discount_percent = 0
+
+  for tag in product.tags
+    assign tag_lower = tag | downcase
+    if tag_lower == 'bestseller'
+      assign has_bestseller = true
+    endif
+    if tag_lower == 'new'
+      assign has_new = true
+    endif
+  endfor
+
+  if current_variant.compare_at_price > current_variant.price
+    assign has_discount = true
+    assign price_diff = current_variant.compare_at_price | minus: current_variant.price
+    assign discount_percent = price_diff | times: 100 | divided_by: current_variant.compare_at_price
+  endif
+
+  # Count badge text — use first variant title or metafield
+  assign count_text = ''
+  if current_variant.title != 'Default Title'
+    assign count_text = current_variant.title
+  endif
+
+  # Star rating from metafields
+  assign rating_value = product.metafields.reviews.rating.value
+  assign rating_count = product.metafields.reviews.rating_count
+%}
+
+<div class="custom-collection-card">
+  <a href="{{ product.url }}" class="custom-collection-card__link" aria-label="{{ product.title | escape }}">
+    <div class="custom-collection-card__image-container">
+      <div class="custom-collection-card__image-bg"></div>
+
+      {% if featured_image %}
+        <img
+          src="{{ featured_image | image_url: width: 400 }}"
+          alt="{{ featured_image.alt | escape | default: product.title | escape }}"
+          loading="lazy"
+          width="{{ featured_image.width }}"
+          height="{{ featured_image.height }}"
+          class="custom-collection-card__image"
+        >
+      {% endif %}
+
+      {% comment %} Count badge {% endcomment %}
+      {% if count_text != blank %}
+        <div class="custom-collection-card__count-badge">
+          <img
+            src="{{ 'shape-15.svg' | asset_url }}"
+            alt=""
+            class="custom-collection-card__count-shape"
+            aria-hidden="true"
+            width="36"
+            height="26"
+          >
+          <span class="custom-collection-card__count-text">{{ count_text }}</span>
+        </div>
+      {% endif %}
+
+      {% comment %} Promotional badges {% endcomment %}
+      {% if has_bestseller %}
+        <div class="custom-collection-card__badge custom-collection-card__badge--bestseller">
+          BestSeller
+        </div>
+      {% elsif has_new %}
+        <div class="custom-collection-card__badge custom-collection-card__badge--new">
+          NEW
+        </div>
+      {% elsif has_discount %}
+        <div class="custom-collection-card__badge custom-collection-card__badge--discount">
+          {{ discount_percent }}% off
+        </div>
+      {% endif %}
+    </div>
+  </a>
+
+  <div class="custom-collection-card__info">
+    <div class="custom-collection-card__product-info">
+      <div class="custom-collection-card__details">
+        {% comment %} Star rating {% endcomment %}
+        {% if rating_value or rating_count %}
+          <div class="custom-collection-card__rating">
+            {% assign rating_floor = rating_value | floor %}
+            {% assign rating_remainder = rating_value | minus: rating_floor %}
+            {% assign rating_half_index = rating_floor | plus: 1 %}
+            {% for i in (1..5) %}
+              {% if i <= rating_floor %}
+                <img src="{{ 'star-11.svg' | asset_url }}" alt="" width="12" height="12" aria-hidden="true" class="custom-collection-card__star">
+              {% elsif i == rating_half_index and rating_remainder > 0 %}
+                <img src="{{ 'starhalf.svg' | asset_url }}" alt="" width="12" height="12" aria-hidden="true" class="custom-collection-card__star">
+              {% else %}
+                <img src="{{ 'star-11.svg' | asset_url }}" alt="" width="12" height="12" aria-hidden="true" class="custom-collection-card__star custom-collection-card__star--empty">
+              {% endif %}
+            {% endfor %}
+            {% if rating_count %}
+              <span class="custom-collection-card__rating-count">({{ rating_count }})</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% comment %} Product title {% endcomment %}
+        <div class="custom-collection-card__title-row">
+          <h3 class="custom-collection-card__title">
+            <a href="{{ product.url }}">{{ product.title }}</a>
+          </h3>
+        </div>
+
+        {% comment %} Description {% endcomment %}
+        {% if product.description != blank %}
+          <p class="custom-collection-card__description">
+            {{ product.description | strip_html | truncate: 45 }}
+          </p>
+        {% endif %}
+
+        {% comment %} Variant flavor pills {% endcomment %}
+        {% if product.variants.size > 1 %}
+          <div class="custom-collection-card__variants">
+            {% for variant in product.variants %}
+              {% if variant.title != 'Default Title' %}
+                {% liquid
+                  assign is_active_variant = false
+                  if variant.id == current_variant.id
+                    assign is_active_variant = true
+                  endif
+                  assign variant_option = variant.option1
+                %}
+                <div class="custom-collection-card__variant-pill{% if is_active_variant %} custom-collection-card__variant-pill--active{% endif %}">
+                  {% if variant.metafields.custom.flavor_icon %}
+                    <img
+                      src="{{ variant.metafields.custom.flavor_icon | image_url: width: 28 }}"
+                      alt=""
+                      width="14"
+                      height="14"
+                      class="custom-collection-card__variant-icon"
+                      aria-hidden="true"
+                    >
+                  {% endif %}
+                  <span class="custom-collection-card__variant-name">{{ variant_option }}</span>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="custom-collection-card__price-row">
+      <div class="custom-collection-card__price-info">
+        <div class="custom-collection-card__prices">
+          <span class="custom-collection-card__price">{{ current_variant.price | money }}</span>
+          {% if current_variant.compare_at_price > current_variant.price %}
+            <span class="custom-collection-card__compare-price">{{ current_variant.compare_at_price | money }}</span>
+          {% endif %}
+        </div>
+        {% if product.metafields.custom.per_serving_price %}
+          <span class="custom-collection-card__per-serving">({{ product.metafields.custom.per_serving_price }})</span>
+        {% endif %}
+      </div>
+
+      <form action="/cart/add" method="post" class="custom-collection-card__add-form">
+        <input type="hidden" name="id" value="{{ current_variant.id }}">
+        <input type="hidden" name="quantity" value="1">
+        <button
+          type="submit"
+          class="custom-collection-card__add-btn"
+          {% unless current_variant.available %}disabled{% endunless %}
+        >
+          {% if current_variant.available %}
+            Add to cart
+          {% else %}
+            Sold out
+          {% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .custom-collection-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 6px;
+    border: 1px solid #680040;
+    background-color: #FFFFFF;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .custom-collection-card__link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .custom-collection-card__image-container {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-collection-card__image-bg {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(104, 0, 64, 0.05);
+    z-index: 0;
+  }
+
+  .custom-collection-card__image {
+    position: relative;
+    z-index: 1;
+    width: 65%;
+    height: 65%;
+    object-fit: contain;
+  }
+
+  .custom-collection-card__count-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    width: 36px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-collection-card__count-shape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-collection-card__count-text {
+    position: relative;
+    z-index: 1;
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 10.83px;
+    line-height: 13px;
+    color: #000000;
+  }
+
+  .custom-collection-card__badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    border-radius: 24px;
+    padding: 8px 12px;
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 14px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .custom-collection-card__badge--bestseller {
+    background-color: #FFC56E;
+    color: #680040;
+  }
+
+  .custom-collection-card__badge--new {
+    background-color: #D50057;
+    color: #FFFFFF;
+  }
+
+  .custom-collection-card__badge--discount {
+    background-color: #D9384A;
+    color: #FFFFFF;
+  }
+
+  .custom-collection-card__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+    flex: 1;
+    gap: 16px;
+  }
+
+  .custom-collection-card__product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .custom-collection-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .custom-collection-card__rating {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .custom-collection-card__star {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+
+  .custom-collection-card__star--empty {
+    opacity: 0.25;
+  }
+
+  .custom-collection-card__rating-count {
+    font-family: 'Roboto', var(--font-body--family), sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 18px;
+    color: #680040;
+    margin-inline-start: 2px;
+  }
+
+  .custom-collection-card__title-row {
+    display: flex;
+    align-items: center;
+  }
+
+  .custom-collection-card__title {
+    font-family: 'Poppins', var(--font-heading--family), sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 20px;
+    text-transform: capitalize;
+    color: #680040;
+    margin: 0;
+  }
+
+  .custom-collection-card__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .custom-collection-card__description {
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    color: #000000;
+    margin: 0;
+  }
+
+  .custom-collection-card__variants {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-block-start: 6px;
+  }
+
+  .custom-collection-card__variant-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 4px;
+    padding: 8px 6px;
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    color: #000000;
+    border: 1px solid #003E6B;
+    background-color: transparent;
+    cursor: pointer;
+  }
+
+  .custom-collection-card__variant-pill--active {
+    background-color: #680040;
+    color: #FFFFFF;
+    border: 1.5px solid #680040;
+    font-family: 'Roboto', var(--font-body--family), sans-serif;
+    font-weight: 500;
+  }
+
+  .custom-collection-card__variant-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .custom-collection-card__variant-name {
+    white-space: nowrap;
+  }
+
+  .custom-collection-card__price-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .custom-collection-card__price-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .custom-collection-card__prices {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .custom-collection-card__price {
+    font-family: 'Roboto', var(--font-body--family), sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 20px;
+    color: #680040;
+  }
+
+  .custom-collection-card__compare-price {
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    color: #4B413A;
+    text-decoration: line-through;
+  }
+
+  .custom-collection-card__per-serving {
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    color: #680040;
+  }
+
+  .custom-collection-card__add-form {
+    flex-shrink: 0;
+  }
+
+  .custom-collection-card__add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    background-color: #680040;
+    color: #FFFFFF;
+    padding: 11px 24px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', var(--font-heading--family), sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 14px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+  }
+
+  .custom-collection-card__add-btn:hover {
+    opacity: 0.85;
+  }
+
+  .custom-collection-card__add-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Mobile adjustments */
+  @media screen and (max-width: 749px) {
+    .custom-collection-card__info {
+      padding: 12px;
+      gap: 12px;
+    }
+
+    .custom-collection-card__add-btn {
+      padding: 9px 16px;
+      font-size: 12px;
+    }
+
+    .custom-collection-card__title {
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .custom-collection-card__description {
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .custom-collection-card__price {
+      font-size: 14px;
+      line-height: 18px;
+    }
+
+    .custom-collection-card__variant-pill {
+      padding: 6px 4px;
+      font-size: 12px;
+    }
+  }
+{% endstylesheet %}

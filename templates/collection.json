@@ -198,13 +198,17 @@
         "mobile_product_card_size": "small",
         "product_grid_width": "centered",
         "full_width_on_mobile": true,
-        "columns_gap_horizontal": 16,
-        "columns_gap_vertical": 24,
+        "columns_gap_horizontal": 32,
+        "columns_gap_vertical": 32,
         "padding-inline-start": 0,
         "padding-inline-end": 0,
         "color_scheme": "scheme-1",
         "padding-block-start": 0,
-        "padding-block-end": 32
+        "padding-block-end": 32,
+        "enable_tag_filters": true,
+        "tag_filter_1": "Bundles",
+        "tag_filter_2": "Family Packs",
+        "enable_custom_card": true
       }
     }
   },

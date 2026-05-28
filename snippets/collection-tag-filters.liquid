@@ -1,0 +1,397 @@
+{% doc %}
+  Collection Tag Filters
+
+  Renders configurable tag-based pill filter buttons above the product grid.
+  'All' links to the unfiltered collection URL; each tag pill links to
+  /collections/{handle}/{tag} for native Shopify tag filtering.
+  Active state detected via collection.current_tags.
+
+  @param {object} collection - The collection object
+  @param {object} section - The section object (for settings)
+
+  @example
+  {% render 'collection-tag-filters', collection: collection, section: section %}
+{% enddoc %}
+
+{% liquid
+  assign collection = collection | default: empty
+  assign has_tags = false
+
+  assign tag_1 = section.settings.tag_filter_1
+  assign tag_2 = section.settings.tag_filter_2
+  assign tag_3 = section.settings.tag_filter_3
+  assign tag_4 = section.settings.tag_filter_4
+  assign tag_5 = section.settings.tag_filter_5
+  assign tag_6 = section.settings.tag_filter_6
+
+  if tag_1 != blank or tag_2 != blank or tag_3 != blank or tag_4 != blank or tag_5 != blank or tag_6 != blank
+    assign has_tags = true
+  endif
+%}
+
+{% if has_tags %}
+  <div class="collection-tag-filters" aria-label="Product filters">
+    <div class="collection-tag-filters__bar">
+      <div class="collection-tag-filters__filter-icon">
+        <span class="svg-wrapper">{{ 'svg-2.svg' | inline_asset_content }}</span>
+        <span class="collection-tag-filters__filter-label">Filter</span>
+        <span class="collection-tag-filters__chevron svg-wrapper">{{ 'svg-4.svg' | inline_asset_content }}</span>
+      </div>
+
+      <span class="collection-tag-filters__count">
+        {{ collection.products_count }} Items
+      </span>
+
+      <div class="collection-tag-filters__pills" role="list">
+        {% liquid
+          assign all_active = true
+          if collection.current_tags.size > 0
+            assign all_active = false
+          endif
+        %}
+        <a
+          href="{{ collection.url }}"
+          class="collection-tag-filters__pill{% if all_active %} collection-tag-filters__pill--active{% endif %}"
+          role="listitem"
+          {% if all_active %}aria-current="true"{% endif %}
+        >
+          All
+        </a>
+
+        {% assign tags_array = '' %}
+        {% if tag_1 != blank %}{% assign tags_array = tags_array | append: tag_1 | append: '|||' %}{% endif %}
+        {% if tag_2 != blank %}{% assign tags_array = tags_array | append: tag_2 | append: '|||' %}{% endif %}
+        {% if tag_3 != blank %}{% assign tags_array = tags_array | append: tag_3 | append: '|||' %}{% endif %}
+        {% if tag_4 != blank %}{% assign tags_array = tags_array | append: tag_4 | append: '|||' %}{% endif %}
+        {% if tag_5 != blank %}{% assign tags_array = tags_array | append: tag_5 | append: '|||' %}{% endif %}
+        {% if tag_6 != blank %}{% assign tags_array = tags_array | append: tag_6 | append: '|||' %}{% endif %}
+
+        {% assign tags_split = tags_array | split: '|||' %}
+
+        {% for tag_name in tags_split %}
+          {% if tag_name != blank %}
+            {% liquid
+              assign tag_handle = tag_name | handleize
+              assign is_active = false
+              for current_tag in collection.current_tags
+                assign current_tag_handle = current_tag | handleize
+                if current_tag_handle == tag_handle
+                  assign is_active = true
+                  break
+                endif
+              endfor
+            %}
+            <a
+              href="{{ collection.url }}/{{ tag_handle }}"
+              class="collection-tag-filters__pill{% if is_active %} collection-tag-filters__pill--active{% endif %}"
+              role="listitem"
+              {% if is_active %}aria-current="true"{% endif %}
+            >
+              {{ tag_name }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="collection-tag-filters__sort">
+        <span class="collection-tag-filters__sort-label">Sort: Featured</span>
+        <span class="collection-tag-filters__chevron svg-wrapper">{{ 'svg-4.svg' | inline_asset_content }}</span>
+      </div>
+    </div>
+
+    <div class="collection-tag-filters__mobile-bar">
+      <div class="collection-tag-filters__mobile-buttons">
+        <button type="button" class="collection-tag-filters__mobile-btn" aria-label="Open filter panel">
+          <span class="collection-tag-filters__mobile-btn-inner">
+            <svg width="18" height="8" viewBox="0 0 18 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <line x1="0" y1="1" x2="18" y2="1" stroke="#680040" stroke-width="1.71"/>
+              <line x1="3" y1="4" x2="15" y2="4" stroke="#680040" stroke-width="1.71"/>
+              <line x1="6" y1="7" x2="12" y2="7" stroke="#680040" stroke-width="1.71"/>
+            </svg>
+            <span>Filter</span>
+          </span>
+        </button>
+        <button type="button" class="collection-tag-filters__mobile-btn" aria-label="Open sort panel">
+          <span class="collection-tag-filters__mobile-btn-inner">
+            <span class="svg-wrapper">{{ 'svg-2.svg' | inline_asset_content }}</span>
+            <span>Sort: Featured</span>
+          </span>
+        </button>
+      </div>
+
+      <div class="collection-tag-filters__mobile-pills" role="list">
+        {% liquid
+          assign all_active_m = true
+          if collection.current_tags.size > 0
+            assign all_active_m = false
+          endif
+        %}
+        <a
+          href="{{ collection.url }}"
+          class="collection-tag-filters__pill collection-tag-filters__pill--mobile{% if all_active_m %} collection-tag-filters__pill--active{% endif %}"
+          role="listitem"
+          {% if all_active_m %}aria-current="true"{% endif %}
+        >
+          All
+        </a>
+
+        {% for tag_name in tags_split %}
+          {% if tag_name != blank %}
+            {% liquid
+              assign tag_handle = tag_name | handleize
+              assign is_active_m = false
+              for current_tag in collection.current_tags
+                assign current_tag_handle_m = current_tag | handleize
+                if current_tag_handle_m == tag_handle
+                  assign is_active_m = true
+                  break
+                endif
+              endfor
+            %}
+            <a
+              href="{{ collection.url }}/{{ tag_handle }}"
+              class="collection-tag-filters__pill collection-tag-filters__pill--mobile{% if is_active_m %} collection-tag-filters__pill--active{% endif %}"
+              role="listitem"
+              {% if is_active_m %}aria-current="true"{% endif %}
+            >
+              {{ tag_name }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="collection-tag-filters__mobile-count">
+        {{ collection.products_count }} Items
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .collection-tag-filters {
+    width: 100%;
+    grid-column: var(--full-width);
+    padding-inline: var(--page-margin);
+  }
+
+  /* Desktop bar — hidden on mobile */
+  .collection-tag-filters__bar {
+    display: none;
+
+    @media screen and (min-width: 750px) {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0;
+      padding: 20px 65px 32px 65px;
+    }
+  }
+
+  .collection-tag-filters__filter-icon {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding-inline-end: 16px;
+    flex-shrink: 0;
+  }
+
+  .collection-tag-filters__filter-icon .svg-wrapper {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-end: 12px;
+  }
+
+  .collection-tag-filters__filter-icon .svg-wrapper svg {
+    width: 24px;
+    height: 24px;
+    color: #680040;
+  }
+
+  .collection-tag-filters__filter-label {
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 33px;
+    color: #680040;
+    text-align: center;
+  }
+
+  .collection-tag-filters__chevron {
+    width: 11px;
+    height: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-start: 8px;
+  }
+
+  .collection-tag-filters__chevron svg {
+    width: 11px;
+    height: 7px;
+    color: #680040;
+  }
+
+  .collection-tag-filters__count {
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 30px;
+    color: #680040;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .collection-tag-filters__pills {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    overflow: hidden;
+    padding-inline-start: 16px;
+  }
+
+  .collection-tag-filters__pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    padding: 12px 16px;
+    background-color: #FFFFFF;
+    color: #000000;
+    border: 1px solid #003E6B;
+  }
+
+  .collection-tag-filters__pill--active {
+    background-color: #680040;
+    color: #FFFFFF;
+    border: 1.5px solid #680040;
+    font-family: 'Roboto', var(--font-body--family), sans-serif;
+    font-weight: 500;
+  }
+
+  .collection-tag-filters__pill:hover:not(.collection-tag-filters__pill--active) {
+    background-color: rgba(104, 0, 64, 0.05);
+    border-color: #680040;
+  }
+
+  .collection-tag-filters__sort {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    min-width: 134px;
+    padding: 4px 0;
+    justify-content: center;
+  }
+
+  .collection-tag-filters__sort-label {
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 33px;
+    color: #680040;
+    text-align: center;
+  }
+
+  /* Mobile bar — visible only on mobile */
+  .collection-tag-filters__mobile-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 0 12px 0;
+
+    @media screen and (min-width: 750px) {
+      display: none;
+    }
+  }
+
+  .collection-tag-filters__mobile-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding-inline: 18px;
+  }
+
+  .collection-tag-filters__mobile-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFFFF;
+    border: 1.5px solid #680040;
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-family: 'Roboto', var(--font-body--family), sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    color: #680040;
+  }
+
+  .collection-tag-filters__mobile-btn-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .collection-tag-filters__mobile-btn-inner .svg-wrapper {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .collection-tag-filters__mobile-btn-inner .svg-wrapper svg {
+    width: 16px;
+    height: 16px;
+    color: #680040;
+  }
+
+  .collection-tag-filters__mobile-pills {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-inline: 16px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .collection-tag-filters__mobile-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .collection-tag-filters__pill--mobile {
+    padding: 8px 12px;
+    flex-shrink: 0;
+  }
+
+  .collection-tag-filters__pill--mobile.collection-tag-filters__pill--active {
+    padding: 8px 16px;
+  }
+
+  .collection-tag-filters__mobile-count {
+    font-family: 'FF Good Pro Narr', var(--font-body--family), sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    color: #680040;
+    text-align: center;
+    padding-inline-start: 16px;
+  }
+{% endstylesheet %}

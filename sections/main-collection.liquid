@@ -3,6 +3,11 @@
   type="module"
   fetchpriority="low"
 ></script>
+<script
+  src="{{ 'collection-tag-filters.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
 
 {% javascript %}
   const url = new URL(window.location.href);
@@ -40,6 +45,10 @@
       results_size: collection.products_count
     %}
 
+    {% if section.settings.enable_tag_filters %}
+      {% render 'collection-tag-filters', collection: collection, section: section %}
+    {% endif %}
+
     {% assign products_per_page = 24 %}
 
     {% if section.settings.enable_infinite_scroll == false %}
@@ -56,9 +65,13 @@
             data-product-id="{{ product.id }}"
             ref="cards[]"
           >
-            {% # theme-check-disable %}
-            {% content_for 'block', type: '_product-card', id: 'product-card', closest.product: product %}
-            {% # theme-check-enable %}
+            {% if section.settings.enable_custom_card %}
+              {% render 'custom-collection-card', product: product %}
+            {% else %}
+              {% # theme-check-disable %}
+              {% content_for 'block', type: '_product-card', id: 'product-card', closest.product: product %}
+              {% # theme-check-enable %}
+            {% endif %}
           </li>
         {% endfor %}
       {% endcapture %}
@@ -250,6 +263,62 @@
       "step": 1,
       "unit": "px",
       "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Tag filters"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_tag_filters",
+      "label": "Enable tag filters",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "tag_filter_1",
+      "label": "Tag filter 1",
+      "visible_if": "{{ section.settings.enable_tag_filters }}"
+    },
+    {
+      "type": "text",
+      "id": "tag_filter_2",
+      "label": "Tag filter 2",
+      "visible_if": "{{ section.settings.enable_tag_filters }}"
+    },
+    {
+      "type": "text",
+      "id": "tag_filter_3",
+      "label": "Tag filter 3",
+      "visible_if": "{{ section.settings.enable_tag_filters }}"
+    },
+    {
+      "type": "text",
+      "id": "tag_filter_4",
+      "label": "Tag filter 4",
+      "visible_if": "{{ section.settings.enable_tag_filters }}"
+    },
+    {
+      "type": "text",
+      "id": "tag_filter_5",
+      "label": "Tag filter 5",
+      "visible_if": "{{ section.settings.enable_tag_filters }}"
+    },
+    {
+      "type": "text",
+      "id": "tag_filter_6",
+      "label": "Tag filter 6",
+      "visible_if": "{{ section.settings.enable_tag_filters }}"
+    },
+    {
+      "type": "header",
+      "content": "Card style"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_card",
+      "label": "Enable custom card",
+      "default": false
     }
   ],
   "presets": []
