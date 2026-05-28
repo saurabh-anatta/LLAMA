@@ -23,6 +23,50 @@
         "padding-block-end": 40
       }
     },
+    "brand-claims": {
+      "type": "brand-claims",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "padding-block-start": 24,
+        "padding-block-end": 24
+      },
+      "blocks": {
+        "claim_1": {
+          "type": "claim",
+          "settings": {
+            "label": "Parent Owned",
+            "icon_file": "third-party-tested.svg"
+          }
+        },
+        "claim_2": {
+          "type": "claim",
+          "settings": {
+            "label": "3rd Party Tested",
+            "icon_file": "third-party-tested-2.svg"
+          }
+        },
+        "claim_3": {
+          "type": "claim",
+          "settings": {
+            "label": "Allergen Free",
+            "icon_file": "no-allergen.svg"
+          }
+        },
+        "claim_4": {
+          "type": "claim",
+          "settings": {
+            "label": "USDA Organic",
+            "icon_file": "third-party-tested-3.svg"
+          }
+        }
+      },
+      "block_order": [
+        "claim_1",
+        "claim_2",
+        "claim_3",
+        "claim_4"
+      ]
+    },
     "main": {
       "type": "main-collection",
       "blocks": {
@@ -166,6 +210,7 @@
   },
   "order": [
     "collection-banner",
+    "brand-claims",
     "main"
   ]
 }
