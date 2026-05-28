@@ -7,7 +7,7 @@
  * made to this file may be overwritten.
  * ------------------------------------------------------------
  */
- {
+{
   "sections": {
     "collection-banner": {
       "type": "collection-banner",
@@ -25,38 +25,33 @@
     },
     "brand-claims": {
       "type": "brand-claims",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "padding-block-start": 24,
-        "padding-block-end": 24
-      },
       "blocks": {
         "claim_1": {
           "type": "claim",
           "settings": {
-            "label": "Parent Owned",
-            "icon_file": "third-party-tested.svg"
+            "icon_file": "third-party-tested.svg",
+            "label": "Parent Owned"
           }
         },
         "claim_2": {
           "type": "claim",
           "settings": {
-            "label": "3rd Party Tested",
-            "icon_file": "third-party-tested-2.svg"
+            "icon_file": "third-party-tested-2.svg",
+            "label": "3rd Party Tested"
           }
         },
         "claim_3": {
           "type": "claim",
           "settings": {
-            "label": "Allergen Free",
-            "icon_file": "no-allergen.svg"
+            "icon_file": "no-allergen.svg",
+            "label": "Allergen Free"
           }
         },
         "claim_4": {
           "type": "claim",
           "settings": {
-            "label": "USDA Organic",
-            "icon_file": "third-party-tested-3.svg"
+            "icon_file": "third-party-tested-3.svg",
+            "label": "USDA Organic"
           }
         }
       },
@@ -65,13 +60,19 @@
         "claim_2",
         "claim_3",
         "claim_4"
-      ]
+      ],
+      "settings": {
+        "color_scheme": "scheme-1",
+        "padding-block-start": 24,
+        "padding-block-end": 24
+      }
     },
     "main": {
       "type": "main-collection",
       "blocks": {
         "filters": {
           "type": "filters",
+          "disabled": true,
           "static": true,
           "settings": {
             "enable_filtering": true,
@@ -177,11 +178,14 @@
               "name": "t:names.swatches",
               "settings": {
                 "product_swatches_alignment": "flex-start",
+                "product_swatches_alignment_mobile": "flex-start",
+                "hide_padding": false,
                 "product_swatches_padding_top": 4,
                 "product_swatches_padding_bottom": 0,
                 "product_swatches_padding_left": 0,
                 "product_swatches_padding_right": 0
-              }
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -196,6 +200,8 @@
         "layout_type": "grid",
         "product_card_size": "medium",
         "mobile_product_card_size": "small",
+        "enable_infinite_scroll": true,
+        "products_per_page": 24,
         "product_grid_width": "centered",
         "full_width_on_mobile": true,
         "columns_gap_horizontal": 32,
@@ -208,6 +214,10 @@
         "enable_tag_filters": true,
         "tag_filter_1": "Bundles",
         "tag_filter_2": "Family Packs",
+        "tag_filter_3": "",
+        "tag_filter_4": "",
+        "tag_filter_5": "",
+        "tag_filter_6": "",
         "enable_custom_card": true
       }
     }
