@@ -15,18 +15,20 @@
       "type": "custom-footer",
       "settings": {
         "color_scheme": "scheme-7",
-        "subscribe_heading": "Subscribe & Save",
-        "subscribe_description": "Get exclusive deals and early access to new products.",
-        "email_placeholder": "Enter your email",
-        "email_button_label": "Subscribe",
-        "menu_1": "footer",
-        "menu_2": "main-menu",
+        "subscribe_heading": "You made it to the bottom. Snaps for you.",
+        "subscribe_description": "Get first dibs on promotions, early access to new products, and stay up to date with all things Llamas!",
+        "email_placeholder": "E-mail address",
+        "email_button_label": "SUBMIT",
+        "menu_1": "footer-shop",
+        "menu_2": "footer-about",
+        "menu_3": "footer-support",
         "show_badges": true,
-        "copyright_text": "© 2025 LLAMA",
+        "disclaimer_text": "*DISCLAIMER: These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. Llama Naturals Pre & Probiotic is formulated to support digestive health and may help relieve occasional constipation. It is not intended for the treatment of chronic constipation or other medical conditions. Always consult your doctor, pediatrician, or healthcare provider before starting any supplement\u2013especially if you or your child has a medical condition or is taking medication.",
         "show_country_selector": true,
-        "disclaimer_text": "† These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure or prevent any disease.",
-        "padding-block-start": 48,
-        "padding-block-end": 48
+        "policy_menu": "footer-policies",
+        "copyright_text": "Copyright \u00a9 2026, Llama Naturals, Inc. Site Credit",
+        "padding-block-start": 40,
+        "padding-block-end": 0
       }
     }
   },
