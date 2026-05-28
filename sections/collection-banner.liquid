@@ -1,0 +1,255 @@
+{% liquid
+  assign image = section.settings.image
+  assign image_mobile = section.settings.image_mobile
+  assign show_breadcrumbs = section.settings.show_breadcrumbs
+  assign show_description = section.settings.show_description
+%}
+
+<div
+  class="collection-banner color-{{ section.settings.color_scheme }}"
+  style="
+    --collection-banner-min-height: {{ section.settings.min_height }}px;
+    --collection-banner-min-height-mobile: {{ section.settings.min_height_mobile }}px;
+    --collection-banner-padding-top: {{ section.settings.padding-block-start }}px;
+    --collection-banner-padding-bottom: {{ section.settings.padding-block-end }}px;
+  "
+>
+  {% if image != blank or image_mobile != blank %}
+    <picture class="collection-banner__media">
+      {% if image_mobile != blank %}
+        <source
+          media="(max-width: 749px)"
+          srcset="{{ image_mobile | image_url: width: image_mobile.width }}"
+        >
+      {% endif %}
+      {% if image != blank %}
+        {{
+          image
+          | image_url: width: image.width
+          | image_tag:
+            class: 'collection-banner__image',
+            sizes: '100vw',
+            widths: '375,550,750,1100,1500,1780,2000',
+            loading: 'eager',
+            fetchpriority: 'high',
+            alt: collection.title
+        }}
+      {% elsif image_mobile != blank %}
+        {{
+          image_mobile
+          | image_url: width: image_mobile.width
+          | image_tag:
+            class: 'collection-banner__image',
+            sizes: '100vw',
+            widths: '375,550,750',
+            loading: 'eager',
+            fetchpriority: 'high',
+            alt: collection.title
+        }}
+      {% endif %}
+    </picture>
+  {% endif %}
+
+  <div class="collection-banner__content">
+    {% if show_breadcrumbs %}
+      <nav class="collection-banner__breadcrumbs" aria-label="Breadcrumb">
+        <a href="/" class="collection-banner__breadcrumb-link">Home</a>
+        <span class="collection-banner__breadcrumb-separator">/</span>
+        <span class="collection-banner__breadcrumb-current">{{ collection.title }}</span>
+      </nav>
+    {% endif %}
+
+    <div class="collection-banner__text-block">
+      <h1 class="collection-banner__title">{{ collection.title }}</h1>
+
+      {% if show_description and collection.description != blank %}
+        <div class="collection-banner__description">{{ collection.description }}</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .collection-banner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: var(--collection-banner-min-height, 411px);
+    overflow: hidden;
+    padding-block-start: var(--collection-banner-padding-top, 0px);
+    padding-block-end: var(--collection-banner-padding-bottom, 40px);
+    padding-inline: var(--page-margin, 40px);
+  }
+
+  .collection-banner__media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .collection-banner__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .collection-banner__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: var(--normal-page-width, 120rem);
+    width: 100%;
+  }
+
+  .collection-banner__breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-accent--family);
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.25;
+    color: var(--color-foreground-heading);
+  }
+
+  .collection-banner__breadcrumb-link {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  .collection-banner__breadcrumb-separator {
+    color: var(--color-foreground-heading);
+  }
+
+  .collection-banner__breadcrumb-current {
+    color: var(--color-foreground-heading);
+  }
+
+  .collection-banner__text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .collection-banner__title {
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: 2.5rem;
+    line-height: 1.2;
+    text-transform: capitalize;
+    color: var(--color-foreground-heading);
+    margin: 0;
+  }
+
+  .collection-banner__description {
+    font-family: var(--font-accent--family);
+    font-weight: 500;
+    font-size: 1.125rem;
+    line-height: 1.333;
+    color: var(--color-foreground-heading);
+    max-width: 543px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .collection-banner {
+      min-height: var(--collection-banner-min-height-mobile, 390px);
+      padding-inline: 16px;
+    }
+
+    .collection-banner__content {
+      gap: 12px;
+    }
+
+    .collection-banner__text-block {
+      gap: 8px;
+    }
+
+    .collection-banner__breadcrumbs {
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection banner",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumbs",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show description",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "number",
+      "id": "min_height",
+      "label": "Desktop min height",
+      "default": 411
+    },
+    {
+      "type": "number",
+      "id": "min_height_mobile",
+      "label": "Mobile min height",
+      "default": 390
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 40,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection banner"
+    }
+  ]
+}
+{% endschema %}

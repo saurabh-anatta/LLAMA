@@ -1111,6 +1111,42 @@
     font-family: var(--menu-localization-font);
     font-size: var(--menu-localization-font-size);
   }
+
+  /* Pill-shaped transparent header for collection pages */
+  #header-component[transparent] .header__row--top {
+    background: transparent;
+    --border-bottom-width: 0px;
+  }
+
+  #header-component[transparent] .header__row--top .header__columns {
+    border-radius: 25px;
+    background-color: var(--color-background);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.05);
+    max-width: 1408px;
+    margin-inline: auto;
+    padding: 8px 32px 10px 32px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #header-component[transparent] .header__row--top .header__columns {
+      position: relative;
+    }
+
+    #header-component[transparent] .header__column--center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #header-component[transparent] .header__row--top .header__columns {
+      max-width: calc(100% - 32px);
+      padding: 7px 24px;
+      min-height: 50px;
+    }
+  }
 {% endstylesheet %}
 
 {% unless request.design_mode %}
