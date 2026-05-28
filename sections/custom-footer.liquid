@@ -1,0 +1,942 @@
+{% liquid
+  assign color_scheme = section.settings.color_scheme
+  assign menu_1 = section.settings.menu_1
+  assign menu_2 = section.settings.menu_2
+  assign menu_3 = section.settings.menu_3
+  assign policy_menu = section.settings.policy_menu
+  assign show_badges = section.settings.show_badges
+  assign show_country_selector = section.settings.show_country_selector
+%}
+
+<div class="section-background color-{{ color_scheme }}"></div>
+<div
+  class="section section--page-width color-{{ color_scheme }}"
+>
+  <div
+    class="custom-footer spacing-style"
+    style="{% render 'spacing-style', settings: section.settings %}"
+  >
+    {%- comment -%} ===== TOP AREA: Menus (left) + Subscribe/Social (right) ===== {%- endcomment -%}
+    <div class="custom-footer__top">
+
+      {%- comment -%} ===== SUBSCRIBE + SOCIAL COLUMN ===== {%- endcomment -%}
+      <div class="custom-footer__subscribe-social">
+        <div class="custom-footer__subscribe">
+          <h3 class="custom-footer__subscribe-heading">
+            {{ section.settings.subscribe_heading }}
+          </h3>
+          <p class="custom-footer__subscribe-description">
+            {{ section.settings.subscribe_description }}
+          </p>
+          {% form 'customer', class: 'custom-footer__subscribe-form' %}
+            <input type="hidden" name="contact[tags]" value="newsletter">
+            <div class="custom-footer__subscribe-input-wrap">
+              <input
+                type="email"
+                name="contact[email]"
+                class="custom-footer__subscribe-input"
+                placeholder="{{ section.settings.email_placeholder }}"
+                autocomplete="email"
+                required
+              >
+              <button type="submit" class="custom-footer__subscribe-button">
+                {{ section.settings.email_button_label }}
+              </button>
+            </div>
+          {% endform %}
+        </div>
+
+        <div class="custom-footer__social">
+          <span class="custom-footer__social-label">Follow Us</span>
+          <div class="custom-footer__social-icons">
+            {% if section.settings.social_instagram != blank %}
+              <a href="{{ section.settings.social_instagram }}" class="custom-footer__social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                <img src="{{ 'instagram-icon.svg' | asset_url }}" alt="Instagram" width="24" height="24" loading="lazy">
+              </a>
+            {% endif %}
+            {% if section.settings.social_tiktok != blank %}
+              <a href="{{ section.settings.social_tiktok }}" class="custom-footer__social-link" aria-label="TikTok" target="_blank" rel="noopener noreferrer">
+                <img src="{{ 'tiktok-icon.svg' | asset_url }}" alt="TikTok" width="24" height="24" loading="lazy">
+              </a>
+            {% endif %}
+            {% if section.settings.social_facebook != blank %}
+              <a href="{{ section.settings.social_facebook }}" class="custom-footer__social-link" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                <img src="{{ 'facebook-icon.svg' | asset_url }}" alt="Facebook" width="24" height="24" loading="lazy">
+              </a>
+            {% endif %}
+            {% if section.settings.social_linkedin != blank %}
+              <a href="{{ section.settings.social_linkedin }}" class="custom-footer__social-link" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+                <img src="{{ 'linkedin-icon.svg' | asset_url }}" alt="LinkedIn" width="24" height="24" loading="lazy">
+              </a>
+            {% endif %}
+            {% if section.settings.social_amazon != blank %}
+              <a href="{{ section.settings.social_amazon }}" class="custom-footer__social-link" aria-label="Amazon" target="_blank" rel="noopener noreferrer">
+                <img src="{{ 'amazon-icon.svg' | asset_url }}" alt="Amazon" width="24" height="24" loading="lazy">
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} ===== MENUS COLUMN ===== {%- endcomment -%}
+      <div class="custom-footer__menus">
+        {% if menu_1 != blank %}
+          <div class="custom-footer__menu-col">
+            {% capture menu_1_children %}
+              <details
+                class="custom-footer__menu-details"
+                open
+              >
+                <summary class="custom-footer__menu-heading">
+                  <span class="custom-footer__menu-heading-default">{{ menu_1.title }}</span>
+                  <span class="custom-footer__menu-heading-accordion">
+                    {{ menu_1.title }}
+                    <span class="custom-footer__menu-toggle svg-wrapper icon-plus">
+                      {{- 'icon-plus.svg' | inline_asset_content -}}
+                    </span>
+                  </span>
+                </summary>
+                <nav class="details-content" aria-label="{{ menu_1.title | escape }}">
+                  <ul class="list-unstyled custom-footer__menu-list">
+                    {% for link in menu_1.links %}
+                      <li class="custom-footer__menu-item">
+                        <a href="{{ link.url }}">{{ link.title }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </nav>
+              </details>
+            {% endcapture %}
+            {% render 'accordion-custom-component',
+              children: menu_1_children,
+              class: 'custom-footer__accordion',
+              disable_on_desktop: true,
+              open_by_default_on_desktop: true
+            %}
+          </div>
+        {% endif %}
+
+        {% if menu_2 != blank %}
+          <div class="custom-footer__menu-col">
+            {% capture menu_2_children %}
+              <details
+                class="custom-footer__menu-details"
+                open
+              >
+                <summary class="custom-footer__menu-heading">
+                  <span class="custom-footer__menu-heading-default">{{ menu_2.title }}</span>
+                  <span class="custom-footer__menu-heading-accordion">
+                    {{ menu_2.title }}
+                    <span class="custom-footer__menu-toggle svg-wrapper icon-plus">
+                      {{- 'icon-plus.svg' | inline_asset_content -}}
+                    </span>
+                  </span>
+                </summary>
+                <nav class="details-content" aria-label="{{ menu_2.title | escape }}">
+                  <ul class="list-unstyled custom-footer__menu-list">
+                    {% for link in menu_2.links %}
+                      <li class="custom-footer__menu-item">
+                        <a href="{{ link.url }}">{{ link.title }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </nav>
+              </details>
+            {% endcapture %}
+            {% render 'accordion-custom-component',
+              children: menu_2_children,
+              class: 'custom-footer__accordion',
+              disable_on_desktop: true,
+              open_by_default_on_desktop: true
+            %}
+          </div>
+        {% endif %}
+
+        {% if menu_3 != blank %}
+          <div class="custom-footer__menu-col">
+            {% capture menu_3_children %}
+              <details
+                class="custom-footer__menu-details"
+                open
+              >
+                <summary class="custom-footer__menu-heading">
+                  <span class="custom-footer__menu-heading-default">{{ menu_3.title }}</span>
+                  <span class="custom-footer__menu-heading-accordion">
+                    {{ menu_3.title }}
+                    <span class="custom-footer__menu-toggle svg-wrapper icon-plus">
+                      {{- 'icon-plus.svg' | inline_asset_content -}}
+                    </span>
+                  </span>
+                </summary>
+                <nav class="details-content" aria-label="{{ menu_3.title | escape }}">
+                  <ul class="list-unstyled custom-footer__menu-list">
+                    {% for link in menu_3.links %}
+                      <li class="custom-footer__menu-item">
+                        <a href="{{ link.url }}">{{ link.title }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </nav>
+              </details>
+            {% endcapture %}
+            {% render 'accordion-custom-component',
+              children: menu_3_children,
+              class: 'custom-footer__accordion',
+              disable_on_desktop: true,
+              open_by_default_on_desktop: true
+            %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {%- comment -%} ===== BADGES ROW ===== {%- endcomment -%}
+    {% if show_badges %}
+      <div class="custom-footer__badges">
+        <img src="{{ 'third-party-tested.svg' | asset_url }}" alt="Third party tested" width="61" height="32" loading="lazy">
+        <img src="{{ 'no-allergen-2.svg' | asset_url }}" alt="No allergens" width="61" height="32" loading="lazy">
+        <img src="{{ 'container.svg' | asset_url }}" alt="Certified container" width="61" height="32" loading="lazy">
+        <img src="{{ 'no-allergen.svg' | asset_url }}" alt="Allergen free" width="61" height="32" loading="lazy">
+        <img src="{{ 'plasticnegative-product-black-v-1.svg' | asset_url }}" alt="Plastic negative" width="61" height="32" loading="lazy">
+      </div>
+    {% endif %}
+
+    {%- comment -%} ===== POLICIES + COUNTRY ROW ===== {%- endcomment -%}
+    <div class="custom-footer__policies-country-row">
+      <div class="custom-footer__policies-section">
+        {% if policy_menu != blank %}
+          <nav class="custom-footer__policies" aria-label="Policies">
+            <ul class="list-unstyled custom-footer__policies-list">
+              {% for link in policy_menu.links %}
+                <li class="custom-footer__policies-item">
+                  <a href="{{ link.url }}">{{ link.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </nav>
+        {% endif %}
+        {% if section.settings.copyright_text != blank %}
+          <p class="custom-footer__copyright">{{ section.settings.copyright_text }}</p>
+        {% endif %}
+      </div>
+
+      {% if show_country_selector %}
+        <div class="custom-footer__country">
+          {% form 'localization' %}
+            <div class="custom-footer__country-selector">
+              <div class="custom-footer__country-display">
+                <span class="custom-footer__country-flag">
+                  {{ localization.country | image_url: width: 32 | image_tag: loading: 'lazy', alt: localization.country.name }}
+                </span>
+                <span class="custom-footer__country-name">{{ localization.country.name }} ({{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }})</span>
+                <span class="custom-footer__country-caret svg-wrapper">
+                  <img src="{{ 'caretdown.svg' | asset_url }}" alt="" width="20" height="20" loading="lazy">
+                </span>
+              </div>
+              <select name="country_code" class="custom-footer__country-select" onchange="this.form.submit()">
+                {% for country in localization.available_countries %}
+                  <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+                    {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endform %}
+        </div>
+      {% endif %}
+    </div>
+
+    {%- comment -%} ===== DISCLAIMER ===== {%- endcomment -%}
+    {% if section.settings.disclaimer_text != blank %}
+      <div class="custom-footer__disclaimer">
+        <p class="custom-footer__disclaimer-text">{{ section.settings.disclaimer_text }}</p>
+      </div>
+    {% endif %}
+
+    {%- comment -%} ===== ILLUSTRATION ===== {%- endcomment -%}
+    {% if section.settings.illustration_image != blank %}
+      <div class="custom-footer__illustration">
+        {% liquid
+          assign sizes_val = '(min-width: 750px) 200px, 150px'
+        %}
+        {{
+          section.settings.illustration_image
+          | image_url: width: section.settings.illustration_image.width
+          | image_tag:
+            sizes: sizes_val,
+            widths: '150,200,300,400',
+            loading: 'lazy',
+            class: 'custom-footer__illustration-img',
+            alt: section.settings.illustration_image.alt
+        }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  /* ===== CUSTOM FOOTER: LAYOUT ===== */
+  .custom-footer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* ===== TOP AREA: Desktop grid — menus left, subscribe right ===== */
+  .custom-footer__top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  .custom-footer__subscribe-social {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .custom-footer__menus {
+    order: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  /* ===== SUBSCRIBE ===== */
+  .custom-footer__subscribe {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .custom-footer__subscribe-heading {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--color-foreground-heading);
+    margin: 0;
+  }
+
+  .custom-footer__subscribe-description {
+    font-family: var(--font-body--family);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-foreground);
+    margin: 0;
+  }
+
+  .custom-footer__subscribe-form {
+    margin-block-start: 8px;
+  }
+
+  .custom-footer__subscribe-input-wrap {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    overflow: hidden;
+    background-color: var(--color-background);
+  }
+
+  .custom-footer__subscribe-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 16px;
+    font-family: var(--font-body--family);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-foreground);
+    outline: none;
+    min-width: 0;
+  }
+
+  .custom-footer__subscribe-input::placeholder {
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-40-60));
+  }
+
+  .custom-footer__subscribe-button {
+    flex-shrink: 0;
+    border: none;
+    background-color: var(--color-primary);
+    color: var(--color-primary-button-text);
+    font-family: var(--font-body--family);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 10px 24px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .custom-footer__subscribe-button:hover {
+    background-color: var(--color-primary-hover);
+  }
+
+  .custom-footer__subscribe-button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* ===== SOCIAL ===== */
+  .custom-footer__social {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .custom-footer__social-label {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--color-foreground-heading);
+    white-space: nowrap;
+  }
+
+  .custom-footer__social-icons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .custom-footer__social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+  }
+
+  .custom-footer__social-link:hover {
+    opacity: 0.7;
+  }
+
+  .custom-footer__social-link:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .custom-footer__social-link img {
+    display: block;
+  }
+
+  /* ===== MENUS ===== */
+  .custom-footer__menu-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .custom-footer__menu-heading {
+    cursor: default;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .custom-footer__menu-heading::-webkit-details-marker {
+    display: none;
+  }
+
+  .custom-footer__menu-heading-default {
+    display: contents;
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--color-foreground-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .custom-footer__menu-heading-accordion {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--color-foreground-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .custom-footer__menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+  }
+
+  .custom-footer__menu-toggle svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .custom-footer__menu-details .details-content {
+    margin-block-start: 12px;
+  }
+
+  .custom-footer__menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .custom-footer__menu-item a {
+    font-family: var(--font-body--family);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .custom-footer__menu-item a:hover {
+    opacity: 0.7;
+  }
+
+  .custom-footer__menu-item a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* ===== BADGES ===== */
+  .custom-footer__badges {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .custom-footer__badges img {
+    display: block;
+    height: 32px;
+    width: auto;
+  }
+
+  /* ===== POLICIES + COUNTRY ROW ===== */
+  .custom-footer__policies-country-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block-start: 24px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .custom-footer__policies-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .custom-footer__policies-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+
+  .custom-footer__policies-item a {
+    font-family: var(--font-body--family);
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .custom-footer__policies-item a:hover {
+    opacity: 0.7;
+  }
+
+  .custom-footer__policies-item a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .custom-footer__copyright {
+    font-family: var(--font-body--family);
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-40-60));
+    margin: 0;
+  }
+
+  /* ===== COUNTRY SELECTOR ===== */
+  .custom-footer__country {
+    flex-shrink: 0;
+  }
+
+  .custom-footer__country-selector {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .custom-footer__country-display {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    pointer-events: none;
+    background-color: transparent;
+  }
+
+  .custom-footer__country-flag img {
+    display: block;
+    width: 20px;
+    height: auto;
+    border-radius: 2px;
+  }
+
+  .custom-footer__country-name {
+    font-family: var(--font-body--family);
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--color-foreground);
+    white-space: nowrap;
+  }
+
+  .custom-footer__country-caret img {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
+
+  .custom-footer__country-select {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  /* ===== DISCLAIMER ===== */
+  .custom-footer__disclaimer {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .custom-footer__disclaimer-text {
+    font-family: var(--font-body--family);
+    font-weight: 400;
+    font-size: 10px;
+    line-height: 14px;
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-40-60));
+    margin: 0;
+  }
+
+  /* ===== ILLUSTRATION ===== */
+  .custom-footer__illustration {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .custom-footer__illustration-img {
+    display: block;
+    width: 200px;
+    height: auto;
+  }
+
+  /* ===== MOBILE STYLES ===== */
+  @media screen and (max-width: 749px) {
+    .custom-footer {
+      gap: 24px;
+    }
+
+    .custom-footer__top {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .custom-footer__subscribe-social {
+      order: -1;
+    }
+
+    .custom-footer__menus {
+      order: 0;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .custom-footer__menu-col {
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .custom-footer__menu-col:first-child {
+      border-top: 1px solid var(--color-border);
+    }
+
+    .custom-footer__menu-heading {
+      cursor: pointer;
+      padding-block: 14px;
+    }
+
+    .custom-footer__menu-heading-default {
+      display: none;
+    }
+
+    .custom-footer__menu-heading-accordion {
+      display: flex;
+    }
+
+    .custom-footer__menu-details .details-content {
+      margin-block-start: 0;
+      padding-block-end: 14px;
+    }
+
+    .custom-footer__badges {
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .custom-footer__policies-country-row {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .custom-footer__policies-list {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .custom-footer__policies-item a {
+      font-size: 14px;
+    }
+
+    .custom-footer__copyright {
+      font-size: 12px;
+    }
+
+    .custom-footer__country {
+      align-self: flex-start;
+    }
+
+    .custom-footer__disclaimer {
+      padding: 12px;
+    }
+
+    .custom-footer__illustration {
+      justify-content: center;
+    }
+
+    .custom-footer__illustration-img {
+      width: 150px;
+    }
+  }
+
+  /* ===== REDUCED MOTION ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .custom-footer__subscribe-button,
+    .custom-footer__social-link,
+    .custom-footer__menu-item a,
+    .custom-footer__policies-item a {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom footer",
+  "tag": "section",
+  "class": "custom-footer-section",
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-7"
+    },
+    {
+      "type": "header",
+      "content": "Subscribe"
+    },
+    {
+      "type": "text",
+      "id": "subscribe_heading",
+      "label": "Heading",
+      "default": "Subscribe & Save"
+    },
+    {
+      "type": "text",
+      "id": "subscribe_description",
+      "label": "Description",
+      "default": "Get exclusive deals and early access to new products."
+    },
+    {
+      "type": "text",
+      "id": "email_placeholder",
+      "label": "Email placeholder",
+      "default": "Enter your email"
+    },
+    {
+      "type": "text",
+      "id": "email_button_label",
+      "label": "Button label",
+      "default": "Subscribe"
+    },
+    {
+      "type": "header",
+      "content": "Menus"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_1",
+      "label": "Menu 1",
+      "default": "footer"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_2",
+      "label": "Menu 2",
+      "default": "main-menu"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_3",
+      "label": "Menu 3"
+    },
+    {
+      "type": "header",
+      "content": "Social media"
+    },
+    {
+      "type": "url",
+      "id": "social_instagram",
+      "label": "Instagram"
+    },
+    {
+      "type": "url",
+      "id": "social_tiktok",
+      "label": "TikTok"
+    },
+    {
+      "type": "url",
+      "id": "social_facebook",
+      "label": "Facebook"
+    },
+    {
+      "type": "url",
+      "id": "social_linkedin",
+      "label": "LinkedIn"
+    },
+    {
+      "type": "url",
+      "id": "social_amazon",
+      "label": "Amazon"
+    },
+    {
+      "type": "header",
+      "content": "Badges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badges",
+      "label": "Show badges",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Policies & Copyright"
+    },
+    {
+      "type": "link_list",
+      "id": "policy_menu",
+      "label": "Policy menu"
+    },
+    {
+      "type": "text",
+      "id": "copyright_text",
+      "label": "Copyright text",
+      "default": "© 2025 LLAMA"
+    },
+    {
+      "type": "header",
+      "content": "Country selector"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_selector",
+      "label": "Show country selector",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Disclaimer"
+    },
+    {
+      "type": "textarea",
+      "id": "disclaimer_text",
+      "label": "Disclaimer text",
+      "default": "† These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure or prevent any disease."
+    },
+    {
+      "type": "header",
+      "content": "Illustration"
+    },
+    {
+      "type": "image_picker",
+      "id": "illustration_image",
+      "label": "Illustration"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ]
+}
+{% endschema %}
