@@ -1,5 +1,5 @@
 <section
-  class="brand-claims color-{{ section.settings.color_scheme }} section-background"
+  class="brand-claims color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
 >
   <div class="brand-claims__wrapper">
@@ -36,6 +36,7 @@
 
 {% stylesheet %}
   .brand-claims {
+    background-color: var(--color-background);
     padding-block-start: var(--padding-block-start, 20px);
     padding-block-end: var(--padding-block-end, 20px);
     padding-inline: var(--page-margin, 16px);
